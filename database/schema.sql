@@ -1,4 +1,5 @@
 -- Create Database
+DROP IF EXISTS talentsync; 
 CREATE DATABASE IF NOT EXISTS talentsync;
 USE talentsync;
 

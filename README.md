@@ -1,4 +1,4 @@
-# About the Web Application
+About the Web Application
 
 TalentSync Web Application Proposal
 
