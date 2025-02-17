@@ -37,7 +37,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 if ($stmt->execute([$company_name, $industry, $email, $hashed_password, $company_website, $company_description, $location])) {
                     $success = "Registration successful! Redirecting to login page...";
-                    header("location=../backend/employer/login.php");
+                    
                 } else {
                     $error = "Failed to register. Try again.";
                 }
@@ -81,7 +81,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <div class="alert alert-success"><?= $success; ?></div>
                             <script>
                                 setTimeout(function() {
-                                    window.location.href = 'employer_login.php';
+                                    window.location.href = '../backend/employer/login.php';
                                 }, 3000); // Redirect after 3 seconds
                             </script>
                         <?php endif; ?>
