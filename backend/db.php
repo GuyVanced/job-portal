@@ -9,7 +9,7 @@ class Database {
     private static $instance = null;
     private $pdo;
 
-    private function __construct() {
+    public function __construct() {
         try {
             $this->pdo = new PDO(
                 "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, 

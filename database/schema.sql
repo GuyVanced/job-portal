@@ -16,7 +16,9 @@ CREATE TABLE users (
 -- Job Seekers Table
 CREATE TABLE job_seekers (
     seeker_id INT PRIMARY KEY AUTO_INCREMENT,
-    user_id INT UNIQUE NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    full_name VARCHAR(255) NOT NULL,
     phone VARCHAR(20),
     location VARCHAR(255),
     skills TEXT,
@@ -24,20 +26,23 @@ CREATE TABLE job_seekers (
     experience TEXT,
     resume_url VARCHAR(255),  -- Optional CV Upload
     preferred_jobs TEXT,
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Employers Table
 CREATE TABLE employers (
     employer_id INT PRIMARY KEY AUTO_INCREMENT,
-    user_id INT UNIQUE NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
     company_name VARCHAR(255) NOT NULL,
     industry VARCHAR(100),
     company_website VARCHAR(255),
     company_description TEXT,
     location VARCHAR(255),
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+
 
 -- Jobs Table
 CREATE TABLE jobs (
@@ -77,11 +82,11 @@ CREATE TABLE notifications (
 -- Admin Table
 CREATE TABLE admin (
     admin_id INT PRIMARY KEY AUTO_INCREMENT,
-    user_id INT UNIQUE NOT NULL,
-    permissions TEXT,
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    full_name VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
 -- Reports Table
 CREATE TABLE reports (
     report_id INT PRIMARY KEY AUTO_INCREMENT,

@@ -1,3 +1,54 @@
+<?php
+require_once '../backend/db.php'; // Database class
+
+// Initialize response messages
+$error = "";
+$success = "";
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $company_name = trim($_POST['company_name']);
+    $industry = trim($_POST['industry']);
+    $email = trim($_POST['email']);
+    $password = trim($_POST['password']);
+    $company_website = trim($_POST['company_website']);
+    $company_description = trim($_POST['company_description']);
+    $location = trim($_POST['location']);
+
+    // Basic validation
+    if (empty($company_name) || empty($industry) || empty($email) || empty($password) || empty($location)) {
+        $error = "All required fields must be filled.";
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = "Invalid email format.";
+    } else {
+        try {
+            $db = new Database();
+            $pdo = $db->getConnection();
+
+            // Check if email is already registered
+            $stmt = $pdo->prepare("SELECT email FROM employers WHERE email = ?");
+            $stmt->execute([$email]);
+            
+            if ($stmt->rowCount() > 0) {
+                $error = "Email is already in use.";
+            } else {
+                // Insert employer data
+                $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+                $stmt = $pdo->prepare("INSERT INTO employers (company_name, industry, email, password_hash, company_website, company_description, location) VALUES (?, ?, ?, ?, ?, ?, ?)");
+
+                if ($stmt->execute([$company_name, $industry, $email, $hashed_password, $company_website, $company_description, $location])) {
+                    $success = "Registration successful! Redirecting to login page...";
+                    header("location=../backend/employer/login.php");
+                } else {
+                    $error = "Failed to register. Try again.";
+                }
+            }
+        } catch (PDOException $e) {
+            $error = "Database error: " . $e->getMessage();
+        }
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,6 +59,7 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
     <div class="container-fluid vh-100">
         <div class="row h-100">
             <!-- Left Section with Background Image -->
@@ -23,40 +75,55 @@
             <div class="col-md-6 d-flex align-items-center justify-content-center bg-white p-5">
                 <div class="w-75">
                     <h2 class="mb-4 text-center">Employer Registration</h2>
-                    <form action="backend/employer/register.php" method="POST">
+                    <form action="employer.php" method="POST">
+                        <!-- Display messages -->
+                        <?php if (!empty($success)): ?>
+                            <div class="alert alert-success"><?= $success; ?></div>
+                            <script>
+                                setTimeout(function() {
+                                    window.location.href = 'employer_login.php';
+                                }, 3000); // Redirect after 3 seconds
+                            </script>
+                        <?php endif; ?>
+
                         <div class="mb-3">
-                            <label for="company_name" class="form-label">Company Name</label>
-                            <input type="text" class="form-control" id="company_name" name="company_name" required>
+                            <label class="form-label">Company Name</label>
+                            <input type="text" name="company_name" class="form-control" required value="<?= htmlspecialchars($_POST['company_name'] ?? '') ?>">
                         </div>
+
                         <div class="mb-3">
-                            <label for="industry" class="form-label">Industry</label>
-                            <input type="text" class="form-control" id="industry" name="industry">
+                            <label class="form-label">Industry</label>
+                            <input type="text" name="industry" class="form-control" required value="<?= htmlspecialchars($_POST['industry'] ?? '') ?>">
                         </div>
+
                         <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" class="form-control" required value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
                         </div>
+
                         <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
+                            <label class="form-label">Password</label>
+                            <input type="password" name="password" class="form-control" required>
                         </div>
+
                         <div class="mb-3">
-                            <label for="company_website" class="form-label">Company Website</label>
-                            <input type="url" class="form-control" id="company_website" name="company_website">
+                            <label class="form-label">Company Website (Optional)</label>
+                            <input type="text" name="company_website" class="form-control" value="<?= htmlspecialchars($_POST['company_website'] ?? '') ?>">
                         </div>
+
                         <div class="mb-3">
-                            <label for="company_description" class="form-label">Company Description</label>
-                            <textarea class="form-control" id="company_description" name="company_description" rows="3"></textarea>
+                            <label class="form-label">Company Description</label>
+                            <textarea name="company_description" class="form-control"><?= htmlspecialchars($_POST['company_description'] ?? '') ?></textarea>
                         </div>
+
                         <div class="mb-3">
-                            <label for="location" class="form-label">Location</label>
-                            <input type="text" class="form-control" id="location" name="location">
+                            <label class="form-label">Location</label>
+                            <input type="text" name="location" class="form-control" required value="<?= htmlspecialchars($_POST['location'] ?? '') ?>">
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">Register</button>
-                        <div class="text-center mt-3">
-                            <a href="employer_login.php">Already registered? Login</a>
-                        </div>
+
+                        <button type="submit" class="btn btn-primary">Register</button>
                     </form>
+
                 </div>
             </div>
         </div>
